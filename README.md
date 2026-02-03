@@ -31,5 +31,5 @@ O objetivo deste projeto foi exercitar conceitos básicos de JavaScript no front
 1. Clone este repositório:
 
 ```bash
-git clone https://github.com/Tyago03/consultaCEP.git
+git clone https://github.com/Tyago03/ConsultaCEP.git
 ````
