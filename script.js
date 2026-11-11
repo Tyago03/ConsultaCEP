@@ -1,34 +1,31 @@
+// Frontend local: dados de APIs externas entram como texto, nunca como HTML.
 function consultarCEP() {
-    var cep = document.getElementById('CEP').value;
-
-    if (cep.length === 0) {
-        alert('O CEP não pode ser vazio.');
-        return;
-    } else if (cep.length !== 8) {
-        alert('Um CEP contém 8 dígitos.');
+    const campo = document.getElementById("CEP");
+    const cep = campo.value.replace(/\D/g, "");
+    if (!/^\d{8}$/.test(cep)) {
+        alert("Digite um CEP válido com 8 dígitos.");
         return;
     }
 
-    axios.get(`http://localhost:8000/cep/${cep}`)
-        .then(function (response) {
-            mostrarResultados(response.data);
-        })
-        .catch(function (error) {
-            console.error('Erro na requisição: ', error);
-            alert('Erro ao buscar o CEP. Verifique o console para mais detalhes.');
+    axios.get(`http://127.0.0.1:8000/cep/${cep}`, { timeout: 10000 })
+        .then(response => mostrarResultados(response.data))
+        .catch(error => {
+            document.getElementById("resultado").replaceChildren();
+            const detail = error.response?.data?.detail;
+            alert(typeof detail === "string" ? detail : "Erro ao consultar CEP. Verifique se a API local está ativa.");
         });
 }
 
 function mostrarResultados(dados) {
-    var tabela = document.getElementById('resultado');
-    tabela.innerHTML = '';
-    var linha = `<tr>
-                    <td>${dados.cep}</td>
-                    <td>${dados.logradouro}</td>
-                    <td>${dados.complemento || ''}</td>
-                    <td>${dados.bairro}</td>
-                    <td>${dados.localidade}</td>
-                    <td>${dados.uf}</td>
-                </tr>`;
-    tabela.innerHTML = linha;
+    const tabela = document.getElementById("resultado");
+    tabela.replaceChildren();
+
+    const campos = ["cep", "logradouro", "complemento", "bairro", "localidade", "uf"];
+    const linha = document.createElement("tr");
+    for (const campo of campos) {
+        const celula = document.createElement("td");
+        celula.textContent = String(dados?.[campo] ?? "");
+        linha.appendChild(celula);
+    }
+    tabela.appendChild(linha);
 }
